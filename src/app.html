@@ -4,9 +4,56 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+
+		<!-- Favicon -->
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="icon" href="/favicon.png" type="image/png" sizes="512x512" />
+		<link rel="apple-touch-icon" href="/favicon.png" />
+
+		<!-- Theme & Brand -->
+		<meta name="theme-color" content="#0A0A0C" />
+		<meta name="color-scheme" content="dark" />
+		<meta name="application-name" content="Soyomu Live" />
+
+		<!-- Default SEO (overridden per-page via svelte:head) -->
+		<meta name="description" content="Get real people watching your TikTok Live. Amplify your reach, connect with genuine audiences, and monetize your passion with Soyomu Live." />
+		<meta name="keywords" content="TikTok Live, live stream viewers, TikTok engagement, live streaming growth, real viewers, Soyomu Live, TikTok marketing" />
+		<meta name="author" content="Soyomu Live" />
+		<meta name="robots" content="index, follow" />
+
+		<!-- Open Graph -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Soyomu Live" />
+		<meta property="og:title" content="Soyomu Live — Real Viewers for Your TikTok Live" />
+		<meta property="og:description" content="Get real people watching your TikTok Live. Amplify your reach, connect with genuine audiences, and monetize your passion." />
+		<meta property="og:image" content="/favicon.png" />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Soyomu Live — Real Viewers for Your TikTok Live" />
+		<meta name="twitter:description" content="Get real people watching your TikTok Live. Amplify your reach and monetize your passion." />
+		<meta name="twitter:image" content="/favicon.png" />
+
+		<!-- Structured Data -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebApplication",
+			"name": "Soyomu Live",
+			"description": "Get real people watching your TikTok Live. Amplify your reach, connect with genuine audiences, and monetize your passion.",
+			"applicationCategory": "SocialNetworkingApplication",
+			"operatingSystem": "Web",
+			"offers": {
+				"@type": "Offer",
+				"category": "Live Stream Engagement"
+			}
+		}
+		</script>
+
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>
+

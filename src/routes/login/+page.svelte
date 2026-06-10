@@ -62,6 +62,12 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Sign In — Soyomu Live</title>
+	<meta name="description" content="Sign in to your Soyomu Live account to manage your TikTok Live campaigns and grow your audience." />
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 bg-[#0A0A0C] text-white py-12 relative overflow-hidden">
 	<!-- Ambient Background Glows -->
 	<div class="absolute top-1/4 left-1/4 w-80 h-80 bg-[#FF2A54]/5 rounded-full filter blur-[100px] pointer-events-none"></div>

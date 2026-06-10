@@ -17,6 +17,11 @@
 	const activeCampaignsList = $derived(campaigns.filter((c: any) => c.status === 'active' || c.status === 'pending' || c.status === 'scheduled'));
 </script>
 
+<svelte:head>
+	<title>Dashboard — Soyomu Live</title>
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-[#0A0A0C] text-white">
 	<!-- Top Bar / Header -->
 	<div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-[#1D1D22] pb-6">

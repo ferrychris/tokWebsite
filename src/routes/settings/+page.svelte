@@ -34,6 +34,11 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Settings — Soyomu Live</title>
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 	<h1 class="text-3xl font-bold mb-2">Settings</h1>
 	<p class="text-muted-foreground mb-8">Manage your account settings</p>

@@ -2,7 +2,7 @@ export const MIN_SPEND = 1000;
 export const PRICE_PER_VIEWER = 100;
 
 export const VIEWER_PRESETS = [
-	{ label: '50', value: 50 },
+	{ label: '10', value: 10 },
 	{ label: '100', value: 100 },
 	{ label: '250', value: 250 },
 	{ label: '500', value: 500 }

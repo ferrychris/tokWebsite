@@ -106,6 +106,11 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Wallet — Soyomu Live</title>
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 	<h1 class="text-3xl font-bold mb-8">Wallet</h1>
 
