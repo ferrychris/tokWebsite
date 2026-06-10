@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground));
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-primary: hsl(var(--primary));
+	--color-primary-foreground: hsl(var(--primary-foreground));
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+	--color-ring: hsl(var(--ring));
+	--radius: 0.5rem;
+}
+
+:root,
+.dark {
+	--background: 240 9.1% 4.3%;
+	--foreground: 0 0% 100%;
+	--muted: 240 4.2% 14.5%;
+	--muted-foreground: 240 5.4% 63.7%;
+	--popover: 240 7.7% 8.6%;
+	--popover-foreground: 0 0% 100%;
+	--card: 240 7.7% 8.6%;
+	--card-foreground: 0 0% 100%;
+	--border: 240 4.2% 14.5%;
+	--input: 240 17.6% 9.8%;
+	--primary: 348 100% 57.6%;
+	--primary-foreground: 0 0% 100%;
+	--secondary: 240 4.2% 14.5%;
+	--secondary-foreground: 0 0% 100%;
+	--accent: 240 4.2% 14.5%;
+	--accent-foreground: 0 0% 100%;
+	--destructive: 0 72.2% 50.6%;
+	--destructive-foreground: 0 0% 100%;
+	--ring: 348 100% 57.6%;
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+@keyframes float {
+	0%, 100% { transform: translateY(0px) scale(1); }
+	50% { transform: translateY(-20px) scale(1.05); }
+}
+
+@keyframes float-slow {
+	0%, 100% { transform: translateY(0px) rotate(0deg); }
+	33% { transform: translateY(-10px) rotate(1deg); }
+	66% { transform: translateY(5px) rotate(-1deg); }
+}
+
+@keyframes pulse-glow {
+	0%, 100% { opacity: 0.5; transform: scale(1); }
+	50% { opacity: 0.8; transform: scale(1.15); }
+}
+
+@keyframes fade-up {
+	from { opacity: 0; transform: translateY(30px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-up-lg {
+	from { opacity: 0; transform: translateY(60px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+	0% { stroke-dashoffset: 1000; }
+	50% { stroke-dashoffset: 500; }
+	100% { stroke-dashoffset: 0; }
+}
+
+@keyframes ribbon-drift {
+	0%, 100% { d: path("M120 400 C 180 280, 320 220, 380 100"); }
+	50% { d: path("M110 390 C 190 270, 310 230, 390 110"); }
+}
+
+.animate-float {
+	animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+	animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+	animation: float 6s ease-in-out 2s infinite;
+}
+
+.animate-pulse-glow {
+	animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow-delayed {
+	animation: pulse-glow 4s ease-in-out 2s infinite;
+}
+
+.animate-fade-up {
+	animation: fade-up 0.7s ease-out forwards;
+}
+
+.animate-fade-up-lg {
+	animation: fade-up-lg 0.8s ease-out forwards;
+}
+
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+.animate-delay-400 { animation-delay: 0.4s; }
+.animate-delay-500 { animation-delay: 0.5s; }
+.animate-delay-700 { animation-delay: 0.7s; }
+
+.reveal-on-scroll {
+	opacity: 0;
+	transform: translateY(40px);
+	transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.reveal-on-scroll.revealed {
+	opacity: 1;
+	transform: translateY(0);
+}
