@@ -21,6 +21,7 @@ export const DURATION_OPTIONS = Array.from({ length: MAX_DURATION / 10 }, (_, i)
 });
 
 export const DURATION_PRESETS = [
+	{ label: '10min', value: 10 },
 	{ label: '30min', value: 30 },
 	{ label: '1hr', value: 60 },
 	{ label: '1hr 30min', value: 90 },

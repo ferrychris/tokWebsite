@@ -23,6 +23,8 @@
 			campaign = { ...campaign, status: newStatus };
 			if (newStatus === 'active') {
 				toast.success('Campaign Activated', { description: 'Viewers will start joining shortly' });
+			} else if (form.refunded) {
+				toast.info('Campaign Cancelled', { description: `₦${(form.refundAmount as number).toLocaleString()} refunded to your wallet` });
 			} else {
 				toast.info('Campaign Cancelled');
 			}
@@ -159,7 +161,20 @@
 			</form>
 		{/if}
 		{#if canCancel}
-			<form method="POST" action="?/cancel" use:enhance={() => { cancelling = true; return async ({ update }) => { cancelling = false; update(); }; }}>
+			<form
+				method="POST"
+				action="?/cancel"
+				use:enhance={() => {
+					cancelling = true;
+					return async ({ update }) => { cancelling = false; update(); };
+				}}
+				onsubmit={(e) => {
+					if (campaign.status === 'active') {
+						const confirmed = confirm(`Cancel this active campaign?\n\n₦${campaign.cost.toLocaleString()} will be refunded to your wallet.`);
+						if (!confirmed) e.preventDefault();
+					}
+				}}
+			>
 				<Button type="submit" variant="destructive" disabled={cancelling}>
 					{#if cancelling}
 						<svg class="h-4 w-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>

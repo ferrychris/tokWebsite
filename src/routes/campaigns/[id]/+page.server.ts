@@ -118,6 +118,34 @@ export const actions = {
 			return fail(400, { error: 'Campaign already ended' });
 		}
 
+		let refunded = false;
+
+		// Active campaigns were already charged — refund the cost back to wallet
+		if (campaign.status === 'active') {
+			const { data: wallet } = await locals.supabase
+				.from('wallets')
+				.select('*')
+				.eq('user_id', locals.user.id)
+				.maybeSingle();
+
+			if (wallet) {
+				await locals.supabase
+					.from('wallets')
+					.update({ balance: wallet.balance + campaign.cost })
+					.eq('user_id', locals.user.id);
+
+				await locals.supabase.from('transactions').insert({
+					user_id: locals.user.id,
+					amount: campaign.cost,
+					type: 'deposit',
+					reference: `REFUND-${campaign.id}-${Date.now()}`,
+					status: 'completed'
+				});
+
+				refunded = true;
+			}
+		}
+
 		await locals.supabase
 			.from('campaigns')
 			.update({ status: 'cancelled' })
@@ -127,10 +155,12 @@ export const actions = {
 			user_id: locals.user.id,
 			type: 'campaign_update',
 			title: 'Campaign Cancelled',
-			body: `Campaign has been cancelled.`,
+			body: refunded
+				? `Campaign cancelled. ₦${campaign.cost.toLocaleString()} has been refunded to your wallet.`
+				: `Campaign has been cancelled.`,
 			data: { campaign_id: campaign.id }
 		});
 
-		return { success: true, action: 'cancel' };
+		return { success: true, action: 'cancel', refunded, refundAmount: campaign.cost };
 	}
 };
