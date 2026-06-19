@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button.svelte';
 	import Card from '$lib/components/ui/card.svelte';
 	import { enhance } from '$app/forms';
-	import { VIEWER_PRESETS, DURATION_OPTIONS, DURATION_PRESETS, PRICE_PER_VIEWER, PRICE_PER_10MIN, MIN_SPEND, MAX_DURATION } from '$lib/utils/constants';
+	import { VIEWER_PRESETS, DURATION_OPTIONS, DURATION_PRESETS, PRICE_PER_VIEWER, MIN_SPEND } from '$lib/utils/constants';
 
 	let { form, data } = $props();
 	let creating = $state(false);
@@ -40,10 +40,10 @@
 			: ''
 	);
 
-	const durationCost = $derived((selectedDuration / 10) * PRICE_PER_10MIN);
+	const durationSlots = $derived(selectedDuration / 10);
 	const durationOption = $derived(DURATION_OPTIONS.find(o => o.value === selectedDuration));
 	const durationLabel = $derived(durationOption?.label || `${selectedDuration}min`);
-	const cost = $derived(selectedViewers * PRICE_PER_VIEWER + durationCost);
+	const cost = $derived(selectedViewers * PRICE_PER_VIEWER * durationSlots);
 	const minViewers = $derived(Math.ceil(MIN_SPEND / PRICE_PER_VIEWER));
 	const viewerError = $derived(
 		selectedViewers < minViewers ? `Minimum spend is ₦${MIN_SPEND.toLocaleString()} (${minViewers} viewers)` : ''
@@ -204,7 +204,7 @@
 						</div>
 					</div>
 
-					<p class="text-sm text-muted-foreground">How long should viewers stay? <span class="text-xs">(₦{PRICE_PER_10MIN.toLocaleString()} per 10 min)</span></p>
+					<p class="text-sm text-muted-foreground">How long should viewers stay? <span class="text-xs">(₦{(selectedViewers * PRICE_PER_VIEWER).toLocaleString()} per 10 min slot)</span></p>
 
 					<!-- Quick Presets -->
 					<div class="flex flex-wrap gap-2">
@@ -228,7 +228,7 @@
 						>
 							{#each DURATION_OPTIONS as option}
 								<option value={option.value}>
-									{option.label} — ₦{option.cost.toLocaleString()}
+									{option.label} — ₦{(selectedViewers * PRICE_PER_VIEWER * option.slots).toLocaleString()}
 								</option>
 							{/each}
 						</select>
@@ -238,12 +238,12 @@
 						<h3 class="font-semibold mb-2">Cost Summary</h3>
 						<div class="space-y-1 text-sm">
 							<div class="flex justify-between">
-								<span>{selectedViewers} Viewers &times; ₦{PRICE_PER_VIEWER.toLocaleString()}</span>
+								<span>{selectedViewers} viewers &times; ₦{PRICE_PER_VIEWER.toLocaleString()}/viewer</span>
 								<span>₦{(selectedViewers * PRICE_PER_VIEWER).toLocaleString()}</span>
 							</div>
-							<div class="flex justify-between">
-								<span>{durationLabel} &times; ₦{PRICE_PER_10MIN.toLocaleString()}/10min</span>
-								<span>₦{durationCost.toLocaleString()}</span>
+							<div class="flex justify-between text-muted-foreground">
+								<span>{durationLabel} &times; {durationSlots} slot{durationSlots > 1 ? 's' : ''}</span>
+								<span>&times;{durationSlots}</span>
 							</div>
 							<hr class="my-2" />
 							<div class="flex justify-between font-bold text-base">

@@ -8,7 +8,6 @@ export const VIEWER_PRESETS = [
 	{ label: '500', value: 500 }
 ] as const;
 
-export const PRICE_PER_10MIN = 100;
 export const MAX_DURATION = 180;
 
 export const DURATION_OPTIONS = Array.from({ length: MAX_DURATION / 10 }, (_, i) => {
@@ -18,7 +17,7 @@ export const DURATION_OPTIONS = Array.from({ length: MAX_DURATION / 10 }, (_, i)
 	const label = hrs > 0
 		? rem > 0 ? `${hrs}hr ${rem}min` : `${hrs}hr`
 		: `${mins}min`;
-	return { label, value: mins, cost: (mins / 10) * PRICE_PER_10MIN };
+	return { label, value: mins, slots: mins / 10 };
 });
 
 export const DURATION_PRESETS = [
