@@ -5,9 +5,9 @@
 	let { data } = $props();
 	let campaigns = $derived(data.campaigns || []);
 
-	const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+	const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success'> = {
 		draft: 'secondary', pending: 'outline', scheduled: 'outline',
-		active: 'default', completed: 'secondary', cancelled: 'destructive'
+		active: 'success', completed: 'secondary', cancelled: 'destructive'
 	};
 
 	const formatCurrency = (n: number) => `₦${n.toLocaleString()}`;

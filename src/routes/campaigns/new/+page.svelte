@@ -32,8 +32,20 @@
 	let viewerInput = $state('');
 	let selectedViewers = $state(10);
 	let selectedDuration = $state(10);
-	let scheduleDate = $state('');
-	let scheduleTime = $state('');
+	function getTodayDate() {
+		const now = new Date();
+		return now.toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+	}
+
+	function getCurrentTime() {
+		const now = new Date();
+		const hh = String(now.getHours()).padStart(2, '0');
+		const mm = String(now.getMinutes()).padStart(2, '0');
+		return `${hh}:${mm}`;
+	}
+
+	let scheduleDate = $state(getTodayDate());
+	let scheduleTime = $state(getCurrentTime());
 	let scheduledAt = $derived(
 		scheduleDate && scheduleTime
 			? `${scheduleDate}T${scheduleTime}`

@@ -7,7 +7,7 @@
 		class: className,
 		children
 	}: {
-		variant?: 'default' | 'secondary' | 'destructive' | 'outline';
+		variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success';
 		class?: string;
 		children?: Snippet;
 	} = $props();
@@ -20,7 +20,8 @@
 			'border-transparent bg-primary text-primary-foreground shadow': variant === 'default',
 			'border-transparent bg-secondary text-secondary-foreground': variant === 'secondary',
 			'border-transparent bg-destructive text-destructive-foreground shadow': variant === 'destructive',
-			'text-foreground': variant === 'outline'
+			'text-foreground': variant === 'outline',
+			'border-transparent bg-green-600 text-white shadow': variant === 'success'
 		},
 		className
 	)}

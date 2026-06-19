@@ -35,9 +35,9 @@
 		}
 	});
 
-	const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+	const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success'> = {
 		draft: 'secondary', pending: 'outline', scheduled: 'outline',
-		active: 'default', completed: 'secondary', cancelled: 'destructive'
+		active: 'success', completed: 'secondary', cancelled: 'destructive'
 	};
 
 	const canActivate = $derived(campaign.status === 'draft' || campaign.status === 'pending');
@@ -57,25 +57,25 @@
 		<Badge variant={statusVariant[campaign.status]} class="text-sm px-3 py-1">{campaign.status}</Badge>
 	</div>
 
-	<div class="grid sm:grid-cols-3 gap-4 mb-8">
+	<div class="grid sm:grid-cols-3 gap-3 mb-6">
 		<Card>
-			<div class="p-4 text-center">
-				<Eye class="h-5 w-5 text-primary mx-auto mb-2" />
-				<p class="text-2xl font-bold">{campaign.viewers_requested}</p>
-				<p class="text-xs text-muted-foreground">Viewers Requested</p>
+			<div class="p-3 text-center">
+				<Eye class="h-4 w-4 text-primary mx-auto mb-1" />
+				<p class="text-lg font-bold">{campaign.viewers_requested}</p>
+				<p class="text-xs text-muted-foreground">Viewers</p>
 			</div>
 		</Card>
 		<Card>
-			<div class="p-4 text-center">
-				<Clock class="h-5 w-5 text-primary mx-auto mb-2" />
-				<p class="text-2xl font-bold">{campaign.duration}</p>
+			<div class="p-3 text-center">
+				<Clock class="h-4 w-4 text-primary mx-auto mb-1" />
+				<p class="text-lg font-bold">{campaign.duration}</p>
 				<p class="text-xs text-muted-foreground">Duration (min)</p>
 			</div>
 		</Card>
 		<Card>
-			<div class="p-4 text-center">
-				<Globe class="h-5 w-5 text-primary mx-auto mb-2" />
-				<p class="text-2xl font-bold">{formatCurrency(campaign.cost)}</p>
+			<div class="p-3 text-center">
+				<Globe class="h-4 w-4 text-primary mx-auto mb-1" />
+				<p class="text-lg font-bold">{formatCurrency(campaign.cost)}</p>
 				<p class="text-xs text-muted-foreground">Total Cost</p>
 			</div>
 		</Card>
