@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button.svelte';
 	import Card from '$lib/components/ui/card.svelte';
 	import { enhance } from '$app/forms';
-	import { VIEWER_PRESETS, DURATION_OPTIONS, PRICE_PER_VIEWER, MIN_SPEND } from '$lib/utils/constants';
+	import { VIEWER_PRESETS, DURATION_OPTIONS, DURATION_PRESETS, PRICE_PER_VIEWER, PRICE_PER_10MIN, MIN_SPEND, MAX_DURATION } from '$lib/utils/constants';
 
 	let { form, data } = $props();
 	let creating = $state(false);
@@ -40,7 +40,10 @@
 			: ''
 	);
 
-	const cost = $derived(selectedViewers * PRICE_PER_VIEWER);
+	const durationCost = $derived((selectedDuration / 10) * PRICE_PER_10MIN);
+	const durationOption = $derived(DURATION_OPTIONS.find(o => o.value === selectedDuration));
+	const durationLabel = $derived(durationOption?.label || `${selectedDuration}min`);
+	const cost = $derived(selectedViewers * PRICE_PER_VIEWER + durationCost);
 	const minViewers = $derived(Math.ceil(MIN_SPEND / PRICE_PER_VIEWER));
 	const viewerError = $derived(
 		selectedViewers < minViewers ? `Minimum spend is ₦${MIN_SPEND.toLocaleString()} (${minViewers} viewers)` : ''
@@ -78,7 +81,7 @@
 		</svg> Back to Campaigns
 	</a>
 	<h1 class="text-3xl font-bold mb-2">Create Campaign</h1>
-	<p class="text-muted-foreground mb-8">Set up your TikTok Live engagement campaign</p>
+	<p class="text-muted-foreground mb-8">Set up your TikTok Live viewer acquisition campaign</p>
 
 	<div class="flex items-center gap-2 mb-8">
 		{#each [1, 2, 3] as s}
@@ -201,17 +204,34 @@
 						</div>
 					</div>
 
-					<p class="text-sm text-muted-foreground">How long should viewers stay?</p>
-					<div class="grid grid-cols-3 gap-3">
-						{#each DURATION_OPTIONS as option}
+					<p class="text-sm text-muted-foreground">How long should viewers stay? <span class="text-xs">(₦{PRICE_PER_10MIN.toLocaleString()} per 10 min)</span></p>
+
+					<!-- Quick Presets -->
+					<div class="flex flex-wrap gap-2">
+						{#each DURATION_PRESETS as preset}
 							<button
 								type="button"
-								onclick={() => selectedDuration = option.value}
-								class="p-4 rounded-lg border text-center transition-all {selectedDuration === option.value ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/50'}"
+								onclick={() => selectedDuration = preset.value}
+								class="px-4 py-2 rounded-lg border text-sm font-medium transition-all {selectedDuration === preset.value ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/50'}"
 							>
-								<div class="font-semibold">{option.label}</div>
+								{preset.label}
 							</button>
 						{/each}
+					</div>
+
+					<!-- Full Dropdown for all 10-min increments -->
+					<div class="space-y-1">
+						<label class="text-xs text-muted-foreground block">Or choose exact duration</label>
+						<select
+							bind:value={selectedDuration}
+							class="flex h-12 w-full rounded-xl border border-input bg-[#121216] px-4 py-3 text-base font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary cursor-pointer [color-scheme:dark] appearance-none"
+						>
+							{#each DURATION_OPTIONS as option}
+								<option value={option.value}>
+									{option.label} — ₦{option.cost.toLocaleString()}
+								</option>
+							{/each}
+						</select>
 					</div>
 
 					<div class="mt-6 p-4 rounded-lg bg-muted">
@@ -222,8 +242,8 @@
 								<span>₦{(selectedViewers * PRICE_PER_VIEWER).toLocaleString()}</span>
 							</div>
 							<div class="flex justify-between">
-								<span>{selectedDuration} Minutes</span>
-								<span>₦0</span>
+								<span>{durationLabel} &times; ₦{PRICE_PER_10MIN.toLocaleString()}/10min</span>
+								<span>₦{durationCost.toLocaleString()}</span>
 							</div>
 							<hr class="my-2" />
 							<div class="flex justify-between font-bold text-base">

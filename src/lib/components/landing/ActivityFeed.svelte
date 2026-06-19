@@ -12,13 +12,13 @@
 		'Volt_Rush', 'Echo_Base', 'Quantum_Fx', 'Rift_Walker', 'Dusk_Fall',
 	];
 	const actions = [
-		(n: number) => `got ${n} engagers`,
-		(n: number) => `received ${n} live viewers`,
-		(n: number) => `tipped ${n} engagers`,
-		(n: number) => `just hit ${n} engagements`,
-		(n: number) => `earned ${n} viewer tips`,
-		(n: number) => `unlocked ${n} live engagements`,
-		(n: number) => `boosted ${n} viewer connections`,
+		(n: number) => `active with ${n} viewers`,
+		(n: number) => `acquired ${n} live viewers`,
+		(n: number) => `measured ${n} watch-time minutes`,
+		(n: number) => `started campaign with ${n} viewers`,
+		(n: number) => `grew audience by ${n} viewers`,
+		(n: number) => `launched a ${n}-viewer campaign`,
+		(n: number) => `drew ${n} viewers to livestream`,
 	];
 	const amounts = [5, 7, 10, 12, 15, 18, 20, 22, 25, 28, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 125, 130, 140, 150, 160, 170, 175, 180, 190, 200, 210, 220, 225, 230, 240, 250, 275, 300, 350, 400, 450, 500];
 

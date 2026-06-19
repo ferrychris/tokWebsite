@@ -31,19 +31,19 @@
 								<svg class="h-4 w-4 text-primary mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
 									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
 								</svg>
-								<span>Real active users</span>
+								<span>Real live viewers</span>
 							</li>
 							<li class="flex items-start gap-2 text-sm">
 								<svg class="h-4 w-4 text-primary mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
 									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
 								</svg>
-								<span>Instant delivery</span>
+								<span>Fast campaign kickoff</span>
 							</li>
 							<li class="flex items-start gap-2 text-sm">
 								<svg class="h-4 w-4 text-primary mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
 									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
 								</svg>
-								<span>Live engagement</span>
+								<span>Measure watch time</span>
 							</li>
 						</ul>
 						<a href="/register" class="mt-6 block">

@@ -82,7 +82,7 @@
 	{#if campaign.status === 'active' && campaign.viewers_delivered !== undefined}
 		<Card class="mb-8">
 			<div class="p-6">
-				<h3 class="font-semibold mb-3">Delivery Progress</h3>
+				<h3 class="font-semibold mb-3">Acquisition Progress</h3>
 				<div class="flex justify-between text-sm text-muted-foreground mb-2">
 					<span>{campaign.viewers_delivered} of {campaign.viewers_requested} viewers</span>
 					<span>{Math.round((campaign.viewers_delivered / campaign.viewers_requested) * 100)}%</span>
@@ -129,7 +129,7 @@
 				</div>
 				<Separator />
 				<div class="flex justify-between">
-					<span class="text-muted-foreground">Viewers Delivered</span>
+					<span class="text-muted-foreground">Viewers Acquired</span>
 					<span>{campaign.viewers_delivered || 0}</span>
 				</div>
 				<Separator />

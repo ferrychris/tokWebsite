@@ -8,11 +8,27 @@ export const VIEWER_PRESETS = [
 	{ label: '500', value: 500 }
 ] as const;
 
-export const DURATION_OPTIONS = [
-	{ label: '10 minutes', value: 10 },
-	{ label: '20 minutes', value: 20 },
-	{ label: '30 minutes', value: 30 }
+export const PRICE_PER_10MIN = 100;
+export const MAX_DURATION = 180;
+
+export const DURATION_OPTIONS = Array.from({ length: MAX_DURATION / 10 }, (_, i) => {
+	const mins = (i + 1) * 10;
+	const hrs = Math.floor(mins / 60);
+	const rem = mins % 60;
+	const label = hrs > 0
+		? rem > 0 ? `${hrs}hr ${rem}min` : `${hrs}hr`
+		: `${mins}min`;
+	return { label, value: mins, cost: (mins / 10) * PRICE_PER_10MIN };
+});
+
+export const DURATION_PRESETS = [
+	{ label: '30min', value: 30 },
+	{ label: '1hr', value: 60 },
+	{ label: '1hr 30min', value: 90 },
+	{ label: '2hr', value: 120 },
+	{ label: '3hr', value: 180 }
 ] as const;
+
 
 export const CAMPAIGN_STATUS = {
 	DRAFT: 'draft',

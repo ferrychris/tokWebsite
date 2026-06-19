@@ -77,7 +77,7 @@
 						<circle cx="12" cy="12" r="5" />
 						<circle cx="12" cy="12" r="1" />
 					</svg>
-					<h3 class="font-semibold">Delivery Rate</h3>
+					<h3 class="font-semibold">Acquisition Rate</h3>
 				</div>
 				<p class="text-3xl font-bold text-primary">{stats?.deliveryRate || 0}%</p>
 				<Progress value={stats?.deliveryRate || 0} class="mt-3" />

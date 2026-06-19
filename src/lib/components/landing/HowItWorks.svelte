@@ -29,7 +29,7 @@
 		</h2>
 
 		<div class="max-w-2xl mx-auto space-y-4">
-			{#each [{ icon: 'bolt', title: 'Connect Account', desc: 'Connect your TikTok account and set your live stream URL.' }, { icon: 'clock', title: 'Create a Campaign', desc: 'Set your viewer goal, choose duration, and fund your wallet.' }, { icon: 'rocket', title: 'Go Live & Grow', desc: 'Activate your campaign and watch real viewers join your stream.' }] as step, i}
+			{#each [{ icon: 'bolt', title: 'Connect Account', desc: 'Connect your TikTok account and set your live stream URL.' }, { icon: 'clock', title: 'Create a Campaign', desc: 'Set your campaign parameters, choose duration, and fund your wallet.' }, { icon: 'rocket', title: 'Go Live & Grow', desc: 'Activate your campaign to drive traffic and build your livestream audience.' }] as step, i}
 				<div
 					bind:this={cards[i]}
 					class="flex items-start gap-4 p-5 bg-[#131316]/40 border border-[#232326] rounded-2xl backdrop-blur-md hover:border-[#FF2A54]/20 transition-all duration-300 hover:scale-[1.02] reveal-on-scroll"

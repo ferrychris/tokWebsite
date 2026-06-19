@@ -14,7 +14,7 @@ export const actions = {
 
 		if (!live_url) return fail(400, { error: 'TikTok Live URL is required' });
 		if (!viewers_requested || viewers_requested < 10) return fail(400, { error: 'Minimum 10 viewers (₦1,000 minimum spend)' });
-		if (!duration || duration < 10) return fail(400, { error: 'Minimum 10 minutes' });
+		if (!duration || duration < 10 || duration > 180 || duration % 10 !== 0) return fail(400, { error: 'Duration must be 10–180 minutes in 10-minute increments' });
 
 		if (tiktok_username) {
 			const cleanUsername = tiktok_username.trim().replace(/^@/, '');

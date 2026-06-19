@@ -17,11 +17,11 @@
 		<div class="grid lg:grid-cols-12 gap-12 items-center">
 			<div class="lg:col-span-7 text-left space-y-6">
 				<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-white animate-fade-up-lg">
-					Get Real Viewers For <br/>
-					Your <span class="text-white bg-clip-text bg-gradient-to-r from-white via-white to-white">Live Streams</span>
+					Drive Traffic To <br/>
+					Your <span class="text-white bg-clip-text bg-gradient-to-r from-white via-white to-white">TikTok Livestreams</span>
 				</h1>
 				<p class="text-lg text-gray-400 max-w-xl leading-relaxed animate-fade-up animate-delay-100">
-					Amplify your reach, connect with genuine audiences, and monetize your passion.
+					Launch viewer acquisition campaigns, measure watch time, and connect with genuine audiences to grow your stream.
 				</p>
 
 				<div class="pt-4 animate-fade-up animate-delay-200">

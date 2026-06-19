@@ -201,7 +201,7 @@
 		{#if activeCampaignsList.length === 0}
 			<div class="bg-[#131316]/30 border border-[#232326] rounded-2xl p-12 text-center">
 				<p class="text-sm text-gray-400">No active, pending, or scheduled campaigns found.</p>
-				<p class="text-xs text-gray-500 mt-1">Start a campaign to boost your live stream engagement!</p>
+				<p class="text-xs text-gray-500 mt-1">Start a campaign to drive traffic to your live stream!</p>
 			</div>
 		{:else}
 			<div class="space-y-4">

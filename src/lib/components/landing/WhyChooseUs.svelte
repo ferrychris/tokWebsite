@@ -2,18 +2,18 @@
 	const features = [
 		{
 			iconName: 'users',
-			title: 'Real Users',
-			description: 'All viewers are real people, not bots. They join and engage with your content naturally.'
+			title: 'Viewer Acquisition',
+			description: 'Connect with genuine audiences to build natural community interest during your live streams.'
 		},
 		{
 			iconName: 'activity',
-			title: 'Active Engagement',
-			description: 'Viewers stay for the full duration of your stream, providing genuine social proof.'
+			title: 'Audience Retention',
+			description: 'Acquire viewers who stay for the duration of your campaign, helping you measure watch time.'
 		},
 		{
 			iconName: 'zap',
-			title: 'Fast Delivery',
-			description: 'Viewers start joining within minutes of campaign activation. No long wait times.'
+			title: 'Prompt Start',
+			description: 'Viewer acquisition starts promptly upon campaign activation, aligning with your schedule.'
 		},
 		{
 			iconName: 'shield-check',
@@ -27,7 +27,7 @@
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="text-center mb-16">
 			<h2 class="text-3xl sm:text-4xl font-bold">Why Choose Us</h2>
-			<p class="mt-4 text-lg text-muted-foreground">The best platform for TikTok live engagement</p>
+			<p class="mt-4 text-lg text-muted-foreground">The best platform to drive traffic to your TikTok livestream</p>
 		</div>
 		<div class="grid md:grid-cols-4 gap-8">
 			{#each features as feature}
