@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/card.svelte';
 	import { Users, BarChart3, TrendingUp, DollarSign } from 'lucide-svelte';
+	import { formatCurrency } from '$lib/utils/currency';
 
 	let { data } = $props();
 	const stats = $derived(data.stats);
-	const fc = (n: number) => `\u20A6${n.toLocaleString()}`;
+	const fc = (n: number) => formatCurrency(n, data.profile?.country);
 </script>
 
 <div>

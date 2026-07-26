@@ -7,6 +7,7 @@
 	import { toast } from 'svelte-sonner';
 	import { enhance } from '$app/forms';
 	import { Eye, Clock, Globe, ArrowLeft, Play, CalendarClock } from 'lucide-svelte';
+	import { formatCurrency as formatCurrencyBase } from '$lib/utils/currency';
 
 	let { data, form } = $props();
 	let campaign = $state(data.campaign);
@@ -14,7 +15,7 @@
 
 	let activating = $state(false);
 
-	const formatCurrency = (n: number) => `₦${n.toLocaleString()}`;
+	const formatCurrency = (n: number) => formatCurrencyBase(n, data.profile?.country);
 
 	$effect(() => {
 		if (form?.success) {

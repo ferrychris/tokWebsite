@@ -8,6 +8,7 @@
 	import Header from '$lib/components/landing/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import AppNavbar from '$lib/components/AppNavbar.svelte';
+	import NavigationProgress from '$lib/components/NavigationProgress.svelte';
 
 	let { children, data } = $props();
 
@@ -25,6 +26,7 @@
 </script>
 
 <div class="dark min-h-screen bg-[#0A0A0C] text-white">
+	<NavigationProgress />
 	{#if isApp}
 		<AppNavbar {data} />
 		<div class="flex">

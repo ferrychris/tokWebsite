@@ -4,6 +4,8 @@ export interface Profile {
 	role: 'creator' | 'admin' | 'tasker';
 	name: string;
 	tiktok_username?: string;
+	country?: string;
+	welcome_email_sent_at?: string | null;
 	created_at: string;
 }
 

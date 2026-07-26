@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+import { sendWelcomeEmail } from '$lib/server/welcomeEmail';
 
 export async function load({ url, locals }: { url: URL; locals: App.Locals }) {
 	const code = url.searchParams.get('code');
@@ -14,6 +15,8 @@ export async function load({ url, locals }: { url: URL; locals: App.Locals }) {
 				.eq('id', userId)
 				.single();
 
+			// Safety net only — the on_auth_user_created trigger normally creates
+			// both of these before this code ever runs.
 			if (!existingProfile) {
 				const { data: { user: u } } = await locals.supabase.auth.getUser();
 				await locals.supabase.from('profiles').insert({
@@ -27,6 +30,26 @@ export async function load({ url, locals }: { url: URL; locals: App.Locals }) {
 					balance: 0,
 					bonus_balance: 0
 				});
+			}
+
+			// Welcome email for OAuth signups. Claiming the row first means
+			// returning Google users don't get a second copy.
+			const { data: claimed } = await locals.supabase
+				.from('profiles')
+				.update({ welcome_email_sent_at: new Date().toISOString() })
+				.eq('id', userId)
+				.is('welcome_email_sent_at', null)
+				.select('email, name')
+				.maybeSingle();
+
+			if (claimed) {
+				const result = await sendWelcomeEmail(claimed.email, claimed.name);
+				if (!result.sent) {
+					await locals.supabase
+						.from('profiles')
+						.update({ welcome_email_sent_at: null })
+						.eq('id', userId);
+				}
 			}
 		}
 		throw redirect(303, next);

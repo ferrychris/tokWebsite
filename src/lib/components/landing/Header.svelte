@@ -17,12 +17,14 @@
 						<path d="M70 20C55 20 45 35 45 50C45 65 55 80 70 80" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<span class="text-white font-extrabold text-xl">Soyomu Live</span>
+				<span class="text-white font-extrabold text-xl">Tikweb</span>
 			</a>
 
 			<!-- Navigation Links -->
 			<div class="hidden md:flex items-center gap-8">
 				<a href="#how-it-works" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">How It Works</a>
+				<a href="#pricing" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Pricing</a>
+				<a href="#features" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
 			</div>
 
 			<!-- CTAs -->
@@ -60,7 +62,9 @@
 	{#if mobileMenuOpen}
 		<div class="md:hidden border-t border-[#1F1F22] bg-[#0A0A0C] p-4 space-y-3">
 			<a href="#how-it-works" onclick={() => mobileMenuOpen = false} class="block text-sm font-medium text-gray-400 hover:text-white py-1">How It Works</a>
-			
+			<a href="#pricing" onclick={() => mobileMenuOpen = false} class="block text-sm font-medium text-gray-400 hover:text-white py-1">Pricing</a>
+			<a href="#features" onclick={() => mobileMenuOpen = false} class="block text-sm font-medium text-gray-400 hover:text-white py-1">Features</a>
+
 			<div class="pt-2 border-t border-[#1F1F22] flex flex-col gap-2">
 				{#if data?.user}
 					<a href="/dashboard" onclick={() => mobileMenuOpen = false} class="w-full">

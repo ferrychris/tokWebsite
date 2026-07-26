@@ -4,10 +4,12 @@
 	import Separator from '$lib/components/ui/separator.svelte';
 	import { createClient } from '$lib/supabase/client';
 	import { invalidateAll } from '$app/navigation';
+	import { COUNTRIES } from '$lib/utils/countries';
 
 	let { data } = $props();
 	let name = $state(data.profile?.name || '');
 	let tiktokUsername = $state(data.profile?.tiktok_username || '');
+	let country = $state(data.profile?.country || '');
 	let saving = $state(false);
 	let saved = $state(false);
 	let error = $state('');
@@ -21,7 +23,7 @@
 		try {
 			const { error: updateError } = await supabase
 				.from('profiles')
-				.update({ name, tiktok_username: tiktokUsername || undefined })
+				.update({ name, tiktok_username: tiktokUsername || undefined, country: country || null })
 				.eq('id', data.user!.id);
 			if (updateError) throw updateError;
 			await invalidateAll();
@@ -35,7 +37,7 @@
 </script>
 
 <svelte:head>
-	<title>Settings — Soyomu Live</title>
+	<title>Settings — Tikweb</title>
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
@@ -80,6 +82,21 @@
 					</svg> TikTok Username
 				</label>
 				<input type="text" bind:value={tiktokUsername} class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="@username" />
+			</div>
+
+			<div>
+				<label class="block text-sm font-medium mb-2 flex items-center gap-2">
+					<svg class="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+						<path stroke-linecap="round" stroke-linejoin="round" d="M3.6 9h16.8M3.6 15h16.8M11.5 3a17 17 0 000 18M12.5 3a17 17 0 010 18" />
+					</svg> Country
+				</label>
+				<select bind:value={country} class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring [color-scheme:dark]">
+					<option value="">Not set — show US Dollars ($)</option>
+					{#each COUNTRIES as c}
+						<option value={c.code}>{c.name}</option>
+					{/each}
+				</select>
 			</div>
 
 			{#if error}

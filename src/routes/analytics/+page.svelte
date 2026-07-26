@@ -3,11 +3,12 @@
 	import Badge from '$lib/components/ui/badge.svelte';
 	import Progress from '$lib/components/ui/progress.svelte';
 	import Separator from '$lib/components/ui/separator.svelte';
+	import { formatCurrency as formatCurrencyBase } from '$lib/utils/currency';
 	let { data } = $props();
 	const campaigns = $derived(data.campaigns || []);
 	const stats = $derived(data.stats);
 
-	const formatCurrency = (n: number) => `₦${n.toLocaleString()}`;
+	const formatCurrency = (n: number) => formatCurrencyBase(n, data.profile?.country);
 
 	const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
 		draft: 'secondary', pending: 'outline', scheduled: 'outline',
@@ -16,7 +17,7 @@
 </script>
 
 <svelte:head>
-	<title>Analytics — Soyomu Live</title>
+	<title>Analytics — Tikweb</title>
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 

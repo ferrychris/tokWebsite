@@ -3,15 +3,27 @@
 	import Badge from '$lib/components/ui/badge.svelte';
 	import { createClient } from '$lib/supabase/client';
 	import { Shield, User, Ban } from 'lucide-svelte';
+	import { formatCurrency } from '$lib/utils/currency';
 
 	let { data } = $props();
 	let users = $state(data.users || []);
 	const supabase = createClient();
-	const fc = (n: number) => `\u20A6${n.toLocaleString()}`;
+	const fc = (n: number) => formatCurrency(n, data.profile?.country);
+
+	// Tracks which row is mid-update so the controls can show progress and
+	// can't be double-clicked into a race.
+	let pending = $state<Record<string, boolean>>({});
 
 	async function updateRole(id: string, role: string) {
-		await supabase.from('profiles').update({ role }).eq('id', id);
-		users = users.map((u: any) => u.id === id ? { ...u, role } : u);
+		if (pending[id]) return;
+		pending = { ...pending, [id]: true };
+		try {
+			await supabase.from('profiles').update({ role }).eq('id', id);
+			users = users.map((u: any) => u.id === id ? { ...u, role } : u);
+		} finally {
+			const { [id]: _, ...rest } = pending;
+			pending = rest;
+		}
 	}
 </script>
 
@@ -43,7 +55,14 @@
 								<td class="py-3 pr-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
 								<td class="py-3">
 									<div class="flex gap-2">
-										{#if u.role !== 'admin'}
+										{#if pending[u.id]}
+											<span class="text-xs text-muted-foreground flex items-center gap-1">
+												<svg class="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+													<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+													<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+												</svg> Updating…
+											</span>
+										{:else if u.role !== 'admin'}
 											<button onclick={() => updateRole(u.id, 'admin')} class="text-xs text-primary hover:underline flex items-center gap-1">
 												<Shield class="h-3 w-3" /> Make Admin
 											</button>

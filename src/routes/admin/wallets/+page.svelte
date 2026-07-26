@@ -3,12 +3,13 @@
 	import Badge from '$lib/components/ui/badge.svelte';
 	import Separator from '$lib/components/ui/separator.svelte';
 	import { createClient } from '$lib/supabase/client';
+	import { formatCurrency } from '$lib/utils/currency';
 
 	let { data } = $props();
 	let wallets = $state(data.wallets || []);
 	let transactions = $state(data.transactions || []);
 	const supabase = createClient();
-	const fc = (n: number) => `\u20A6${n.toLocaleString()}`;
+	const fc = (n: number) => formatCurrency(n, data.profile?.country);
 
 	const tv: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
 		completed: 'default', pending: 'outline', failed: 'destructive'

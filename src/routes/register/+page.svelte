@@ -4,51 +4,112 @@
 	import { createClient } from '$lib/supabase/client';
 	import { loadSession } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
+	import { COUNTRIES } from '$lib/utils/countries';
+	import LoadingOverlay from '$lib/components/LoadingOverlay.svelte';
+
+	// Kept true across the redirect to the dashboard — resetting it in `finally`
+	// would flip the button back to "Create Account" while the account is
+	// already created and the app is still loading.
+	let redirecting = $state(false);
+	let googleLoading = $state(false);
 
 	let name = $state('');
 	let email = $state('');
 	let password = $state('');
 	let tiktokUsername = $state('');
+	let country = $state('');
 	let error = $state('');
 	let success = $state('');
 	let loading = $state(false);
 
+	// Set once a confirmation email has gone out, so we know which address to
+	// resend to even if the user edits the field afterwards.
+	let pendingEmail = $state('');
+	let resending = $state(false);
+	let resendNotice = $state('');
+	let cooldown = $state(0);
+	let cooldownTimer: ReturnType<typeof setInterval> | null = null;
+
+	const RESEND_COOLDOWN = 60; // Supabase rate-limits confirmation emails
+
 	const supabase = createClient();
+
+	function startCooldown() {
+		cooldown = RESEND_COOLDOWN;
+		if (cooldownTimer) clearInterval(cooldownTimer);
+		cooldownTimer = setInterval(() => {
+			cooldown -= 1;
+			if (cooldown <= 0 && cooldownTimer) {
+				clearInterval(cooldownTimer);
+				cooldownTimer = null;
+			}
+		}, 1000);
+	}
+
+	$effect(() => () => {
+		if (cooldownTimer) clearInterval(cooldownTimer);
+	});
+
+	async function handleResend() {
+		if (!pendingEmail || resending || cooldown > 0) return;
+		resending = true;
+		resendNotice = '';
+		error = '';
+		try {
+			const { error: resendError } = await supabase.auth.resend({
+				type: 'signup',
+				email: pendingEmail
+			});
+			if (resendError) throw resendError;
+			resendNotice = `Confirmation email resent to ${pendingEmail}.`;
+			startCooldown();
+		} catch (e: any) {
+			error = e.message || 'Could not resend the confirmation email';
+			// A rate-limit rejection still means "wait" — reflect that in the UI.
+			if (/rate|too many|seconds/i.test(e?.message || '')) startCooldown();
+		} finally {
+			resending = false;
+		}
+	}
 
 	async function handleRegister() {
 		error = '';
 		success = '';
+		resendNotice = '';
 		loading = true;
 		try {
+			// The profile and wallet are created by the on_auth_user_created
+			// trigger (migration 00011) using this metadata. Inserting them here
+			// would run as `anon` whenever email confirmation is enabled — there
+			// is no session yet at that point — and RLS would reject it.
 			const { data, error: authError } = await supabase.auth.signUp({
 				email,
 				password,
-				options: { data: { name, tiktok_username: tiktokUsername } }
+				options: {
+					data: {
+						name,
+						tiktok_username: tiktokUsername || '',
+						country: country || ''
+					}
+				}
 			});
 			if (authError) throw authError;
 			if (data.user) {
-				const { error: profileError } = await supabase.from('profiles').insert({
-					id: data.user.id,
-					email,
-					name,
-					role: 'creator',
-					tiktok_username: tiktokUsername || undefined
-				});
-				if (profileError) throw profileError;
-
-				const { error: walletError } = await supabase.from('wallets').insert({
-					user_id: data.user.id,
-					balance: 0,
-					bonus_balance: 0
-				});
-				if (walletError) throw walletError;
-
 				const { data: { session } } = await supabase.auth.getSession();
 				if (session) {
+					// Email confirmation is disabled, so the user is already signed
+					// in. Fire the welcome email but never let it hold up (or break)
+					// the redirect — it is best-effort by design.
+					fetch('/api/welcome-email', { method: 'POST' }).catch(() => {});
+					redirecting = true;
 					await loadSession();
-					goto('/dashboard');
+					await goto('/dashboard');
+					return; // leave `loading`/`redirecting` on; we're navigating away
 				} else {
+					// Fallback for if email confirmation is switched back on later.
+					pendingEmail = email;
 					success = 'Registration successful! Please check your email to confirm your account.';
+					startCooldown();
 				}
 			}
 		} catch (e: any) {
@@ -60,24 +121,29 @@
 
 	async function handleGoogle() {
 		error = '';
+		googleLoading = true;
 		try {
 			const { error: authError } = await supabase.auth.signInWithOAuth({
 				provider: 'google',
 				options: { redirectTo: `${location.origin}/auth/callback` }
 			});
 			if (authError) throw authError;
+			// Success navigates away to Google — keep the spinner up.
 		} catch (e: any) {
 			error = e.message || 'Failed to sign up with Google';
+			googleLoading = false;
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>Sign Up — Soyomu Live | Drive Traffic to Your TikTok Livestream</title>
-	<meta name="description" content="Create your free Soyomu Live account and launch viewer acquisition campaigns to drive traffic to your livestream. Sign up in seconds." />
-	<meta property="og:title" content="Sign Up — Soyomu Live | Drive Traffic to Your TikTok Livestream" />
-	<meta property="og:description" content="Create your free Soyomu Live account and launch viewer acquisition campaigns to drive traffic to your livestream." />
+	<title>Sign Up — Tikweb | Drive Traffic to Your TikTok Livestream</title>
+	<meta name="description" content="Create your free Tikweb account and launch viewer acquisition campaigns to drive traffic to your livestream. Sign up in seconds." />
+	<meta property="og:title" content="Sign Up — Tikweb | Drive Traffic to Your TikTok Livestream" />
+	<meta property="og:description" content="Create your free Tikweb account and launch viewer acquisition campaigns to drive traffic to your livestream." />
 </svelte:head>
+
+<LoadingOverlay show={redirecting} message="Setting up your account…" />
 
 <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 bg-[#0A0A0C] text-white py-12 relative overflow-hidden">
 	<!-- Ambient Background Glows -->
@@ -94,14 +160,21 @@
 						<path d="M70 20C55 20 45 35 45 50C45 65 55 80 70 80" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
 					</svg>
 				</div>
-				<span class="text-white font-extrabold text-lg">Soyomu Live</span>
+				<span class="text-white font-extrabold text-lg">Tikweb</span>
 			</div>
 			<h1 class="text-2xl font-bold tracking-tight text-white">Create your account</h1>
 			<p class="text-sm text-gray-400">Launch viewer acquisition campaigns today</p>
 		</div>
 
 		<!-- Google Signup -->
-		<Button onclick={handleGoogle} class="w-full bg-[#1C1C22] hover:bg-[#27272E] text-white border border-[#2D2D35] rounded-xl flex items-center justify-center gap-3 py-5.5 text-sm transition-colors">
+		<Button onclick={handleGoogle} disabled={googleLoading || loading} class="w-full bg-[#1C1C22] hover:bg-[#27272E] text-white border border-[#2D2D35] rounded-xl flex items-center justify-center gap-3 py-5.5 text-sm transition-colors disabled:opacity-70">
+			{#if googleLoading}
+				<svg class="h-4.5 w-4.5 animate-spin" fill="none" viewBox="0 0 24 24">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+				</svg>
+				Redirecting to Google…
+			{:else}
 			<svg class="h-4.5 w-4.5" viewBox="0 0 24 24">
 				<path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
 				<path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -109,6 +182,7 @@
 				<path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
 			</svg>
 			Continue with Google
+			{/if}
 		</Button>
 
 		<div class="flex items-center gap-3">
@@ -167,15 +241,57 @@
 				/>
 			</div>
 
+			<div class="space-y-1">
+				<label for="country" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Country</label>
+				<select
+					id="country"
+					bind:value={country}
+					required
+					class="flex h-11 w-full rounded-xl border border-[#232326] bg-[#16161C] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#FF2A54]/50 transition-colors [color-scheme:dark]"
+				>
+					<option value="" disabled>Select your country</option>
+					{#each COUNTRIES as c}
+						<option value={c.code}>{c.name}</option>
+					{/each}
+				</select>
+			</div>
+
 			{#if error}
 				<p class="text-sm text-red-400 font-medium">{error}</p>
 			{/if}
+
 			{#if success}
-				<p class="text-sm text-emerald-400 font-medium">{success}</p>
+				<div class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-2">
+					<p class="text-sm text-emerald-400 font-medium">{success}</p>
+					{#if resendNotice}
+						<p class="text-xs text-emerald-300/80">{resendNotice}</p>
+					{/if}
+					<p class="text-xs text-gray-400">
+						Didn&rsquo;t get it? Check your spam folder, or
+						{#if cooldown > 0}
+							<span class="text-gray-500">resend in {cooldown}s</span>
+						{:else}
+							<button
+								type="button"
+								onclick={handleResend}
+								disabled={resending}
+								class="text-[#FF2A54] hover:underline font-semibold disabled:opacity-60 disabled:no-underline"
+							>
+								{resending ? 'Sending…' : 'resend the link'}
+							</button>
+						{/if}
+					</p>
+				</div>
 			{/if}
 
-			<Button type="submit" class="w-full bg-[#FF2A54] hover:bg-[#E01E43] text-white border-0 py-5.5 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-[#FF2A54]/10" disabled={loading}>
-				{loading ? 'Creating account...' : 'Create Account'}
+			<Button type="submit" class="w-full bg-[#FF2A54] hover:bg-[#E01E43] text-white border-0 py-5.5 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-[#FF2A54]/10 disabled:opacity-70 flex items-center justify-center gap-2" disabled={loading || googleLoading}>
+				{#if loading}
+					<svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+					</svg>
+				{/if}
+				{redirecting ? 'Taking you to your dashboard…' : loading ? 'Creating account…' : 'Create Account'}
 			</Button>
 		</form>
 

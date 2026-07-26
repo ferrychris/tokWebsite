@@ -24,7 +24,7 @@
 					<path d="M70 20C55 20 45 35 45 50C45 65 55 80 70 80" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
 				</svg>
 			</div>
-			<span class="text-white font-extrabold">Soyomu Live</span>
+			<span class="text-white font-extrabold">Tikweb</span>
 		</a>
 	</div>
 

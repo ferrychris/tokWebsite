@@ -1,4 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { MIN_SPEND } from '$lib/utils/constants';
+import { formatCurrency } from '$lib/utils/currency';
 
 export const actions = {
 	default: async ({ request, locals }: { request: Request; locals: App.Locals }) => {
@@ -13,7 +15,7 @@ export const actions = {
 		const scheduled_at = form.get('scheduled_at') as string | null;
 
 		if (!live_url) return fail(400, { error: 'TikTok Live URL is required' });
-		if (!viewers_requested || viewers_requested < 10) return fail(400, { error: 'Minimum 10 viewers (₦1,000 minimum spend)' });
+		if (!viewers_requested || viewers_requested < 10) return fail(400, { error: `Minimum 10 viewers (${formatCurrency(MIN_SPEND, locals.profile?.country)} minimum spend)` });
 		if (!duration || duration < 10 || duration > 180 || duration % 10 !== 0) return fail(400, { error: 'Duration must be 10–180 minutes in 10-minute increments' });
 
 		if (tiktok_username) {
@@ -35,7 +37,7 @@ export const actions = {
 				duration,
 				cost,
 				scheduled_at: scheduled_at ? new Date(scheduled_at).toISOString() : null,
-				status: 'draft'
+				status: 'active'
 			})
 			.select()
 			.single();
@@ -46,7 +48,7 @@ export const actions = {
 			user_id: locals.user.id,
 			type: 'campaign_update',
 			title: 'Campaign Created',
-			body: `Campaign for ${viewers_requested} viewers created — fund your wallet and activate to get started.`,
+			body: `Campaign for ${viewers_requested} viewers created and is now active.`,
 			data: { campaign_id: campaign.id }
 		});
 

@@ -4,6 +4,8 @@
 	import Badge from '$lib/components/ui/badge.svelte';
 	import Progress from '$lib/components/ui/progress.svelte';
 	import Separator from '$lib/components/ui/separator.svelte';
+	import CountryPrompt from '$lib/components/CountryPrompt.svelte';
+	import { formatCurrency as formatCurrencyBase } from '$lib/utils/currency';
 
 	let { data } = $props();
 
@@ -11,14 +13,14 @@
 	const campaigns = $derived(data.campaigns || []);
 	const stats = $derived(data.stats);
 
-	const formatCurrency = (n: number) => `₦${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+	const formatCurrency = (n: number) => formatCurrencyBase(n, data.profile?.country);
 	const formatNumber = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toString();
 
 	const activeCampaignsList = $derived(campaigns.filter((c: any) => c.status === 'active' || c.status === 'pending' || c.status === 'scheduled'));
 </script>
 
 <svelte:head>
-	<title>Dashboard — Soyomu Live</title>
+	<title>Dashboard — Tikweb</title>
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
@@ -57,6 +59,8 @@
 			</div>
 		</div>
 	</div>
+
+	<CountryPrompt userId={data.user?.id} country={data.profile?.country} />
 
 	<!-- Metrics Grid (4 Cards) -->
 	<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">

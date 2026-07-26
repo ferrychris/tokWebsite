@@ -1,5 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { MIN_SPEND, PRICE_PER_VIEWER, BONUS_FIRST_CAMPAIGN_VIEWERS } from '$lib/utils/constants';
+import { formatCurrency } from '$lib/utils/currency';
 
 export async function load({ params, locals }: { params: { id: string }; locals: App.Locals }) {
 	if (!locals.user) throw redirect(303, '/login');
@@ -57,7 +58,7 @@ export const actions = {
 
 		const totalBalance = (wallet?.balance || 0) + (wallet?.bonus_balance || 0);
 		if (totalBalance < campaign.cost) {
-			return fail(400, { error: `Insufficient balance. Need ₦${campaign.cost.toLocaleString()}, have ₦${totalBalance.toLocaleString()}. Please fund your wallet.` });
+			return fail(400, { error: `Insufficient balance. Need ${formatCurrency(campaign.cost, locals.profile?.country)}, have ${formatCurrency(totalBalance, locals.profile?.country)}. Please fund your wallet.` });
 		}
 
 		let deduction = campaign.cost;
@@ -156,7 +157,7 @@ export const actions = {
 			type: 'campaign_update',
 			title: 'Campaign Cancelled',
 			body: refunded
-				? `Campaign cancelled. ₦${campaign.cost.toLocaleString()} has been refunded to your wallet.`
+				? `Campaign cancelled. ${formatCurrency(campaign.cost, locals.profile?.country)} has been refunded to your wallet.`
 				: `Campaign has been cancelled.`,
 			data: { campaign_id: campaign.id }
 		});

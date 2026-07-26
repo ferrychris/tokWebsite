@@ -21,16 +21,40 @@ export async function POST({ request, locals }) {
 		return json({ error: 'Transaction reference mismatch' }, { status: 400 });
 	}
 
-	const amount = verifyData.data.amount;
-
 	const { data: existingTx } = await locals.supabase
 		.from('transactions')
-		.select('status')
+		.select('status, amount, charge_amount, charge_currency')
 		.eq('reference', tx_ref)
 		.single();
 
 	if (!existingTx || existingTx.status !== 'pending') {
 		return json({ error: 'Transaction already processed or not found' }, { status: 400 });
+	}
+
+	// The gateway charges in the user's currency, but the wallet is denominated
+	// in NGN. Credit the NGN figure recorded at initialise time rather than the
+	// gateway's number, which is in the charged currency.
+	const amount = existingTx.amount;
+
+	// Confirm the payment actually matches what we asked for, so a mismatched or
+	// underpaid charge can't credit a full-price deposit.
+	const paidCurrency = verifyData.data.currency;
+	const paidAmount = Number(verifyData.data.amount);
+	const expectedCurrency = existingTx.charge_currency || 'NGN';
+	const expectedAmount = Number(existingTx.charge_amount ?? existingTx.amount);
+
+	if (paidCurrency !== expectedCurrency) {
+		return json(
+			{ error: `Currency mismatch: charged ${paidCurrency}, expected ${expectedCurrency}` },
+			{ status: 400 }
+		);
+	}
+	// Tolerance covers gateway rounding on converted amounts.
+	if (paidAmount + 0.01 < expectedAmount) {
+		return json(
+			{ error: `Underpaid: received ${paidAmount} ${paidCurrency}, expected ${expectedAmount}` },
+			{ status: 400 }
+		);
 	}
 
 	let bonusAmount = 0;

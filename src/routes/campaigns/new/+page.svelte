@@ -3,9 +3,12 @@
 	import Card from '$lib/components/ui/card.svelte';
 	import { enhance } from '$app/forms';
 	import { VIEWER_PRESETS, DURATION_OPTIONS, DURATION_PRESETS, PRICE_PER_VIEWER, MIN_SPEND } from '$lib/utils/constants';
+	import { formatCurrency as formatCurrencyBase } from '$lib/utils/currency';
 
 	let { form, data } = $props();
 	let creating = $state(false);
+
+	const formatCurrency = (n: number) => formatCurrencyBase(n, data.profile?.country);
 
 	let step = $state(1);
 	let tiktokUsername = $state(data.profile?.tiktok_username || '');
@@ -58,7 +61,7 @@
 	const cost = $derived(selectedViewers * PRICE_PER_VIEWER * durationSlots);
 	const minViewers = $derived(Math.ceil(MIN_SPEND / PRICE_PER_VIEWER));
 	const viewerError = $derived(
-		selectedViewers < minViewers ? `Minimum spend is ₦${MIN_SPEND.toLocaleString()} (${minViewers} viewers)` : ''
+		selectedViewers < minViewers ? `Minimum spend is ${formatCurrency(MIN_SPEND)} (${minViewers} viewers)` : ''
 	);
 
 	function applyViewerPreset(val: number) {
@@ -153,7 +156,7 @@
 				<div class="p-6 space-y-4">
 					<h2 class="text-xl font-semibold">Step 2: Number of Viewers</h2>
 					<p class="text-sm text-muted-foreground">
-						Enter desired viewers (min {minViewers} &middot; ₦{PRICE_PER_VIEWER.toLocaleString()}/viewer)
+						Enter desired viewers (min {minViewers} &middot; {formatCurrency(PRICE_PER_VIEWER)}/viewer)
 					</p>
 					<input
 						type="number"
@@ -179,7 +182,7 @@
 					{/if}
 					<div class="p-3 rounded-lg bg-muted text-center">
 						<span class="text-sm text-muted-foreground">Cost: </span>
-						<span class="text-lg font-bold">₦{cost.toLocaleString()}</span>
+						<span class="text-lg font-bold">{formatCurrency(cost)}</span>
 					</div>
 					<div class="flex justify-between">
 						<Button type="button" variant="ghost" onclick={prevStep}>Back</Button>
@@ -216,7 +219,7 @@
 						</div>
 					</div>
 
-					<p class="text-sm text-muted-foreground">How long should viewers stay? <span class="text-xs">(₦{(selectedViewers * PRICE_PER_VIEWER).toLocaleString()} per 10 min slot)</span></p>
+					<p class="text-sm text-muted-foreground">How long should viewers stay? <span class="text-xs">({formatCurrency(selectedViewers * PRICE_PER_VIEWER)} per 10 min slot)</span></p>
 
 					<!-- Quick Presets -->
 					<div class="flex flex-wrap gap-2">
@@ -240,7 +243,7 @@
 						>
 							{#each DURATION_OPTIONS as option}
 								<option value={option.value}>
-									{option.label} — ₦{(selectedViewers * PRICE_PER_VIEWER * option.slots).toLocaleString()}
+									{option.label} — {formatCurrency(selectedViewers * PRICE_PER_VIEWER * option.slots)}
 								</option>
 							{/each}
 						</select>
@@ -250,8 +253,8 @@
 						<h3 class="font-semibold mb-2">Cost Summary</h3>
 						<div class="space-y-1 text-sm">
 							<div class="flex justify-between">
-								<span>{selectedViewers} viewers &times; ₦{PRICE_PER_VIEWER.toLocaleString()}/viewer</span>
-								<span>₦{(selectedViewers * PRICE_PER_VIEWER).toLocaleString()}</span>
+								<span>{selectedViewers} viewers &times; {formatCurrency(PRICE_PER_VIEWER)}/viewer</span>
+								<span>{formatCurrency(selectedViewers * PRICE_PER_VIEWER)}</span>
 							</div>
 							<div class="flex justify-between text-muted-foreground">
 								<span>{durationLabel} &times; {durationSlots} slot{durationSlots > 1 ? 's' : ''}</span>
@@ -260,7 +263,7 @@
 							<hr class="my-2" />
 							<div class="flex justify-between font-bold text-base">
 								<span>Total</span>
-								<span>₦{cost.toLocaleString()}</span>
+								<span>{formatCurrency(cost)}</span>
 							</div>
 						</div>
 					</div>

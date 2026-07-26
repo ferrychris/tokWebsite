@@ -5,6 +5,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { BONUS_FIRST_DEPOSIT_PERCENT, BONUS_FIRST_DEPOSIT_MINIMUM } from '$lib/utils/constants';
+	import { formatCurrency as formatCurrencyBase, isNigeria, NGN_PER_USD, formatIn } from '$lib/utils/currency';
 	import { PUBLIC_FLUTTERWAVE_PUBLIC_KEY } from '$env/static/public';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
@@ -35,7 +36,16 @@
 		}
 	});
 
-	const formatCurrency = (n: number) => `\u20A6${n.toLocaleString()}`;
+	const formatCurrency = (n: number) => formatCurrencyBase(n, data.profile?.country);
+
+	function getDepositAmountNgn(): number {
+		const val = parseFloat(depositAmount);
+		if (isNaN(val) || val <= 0) return 0;
+		if (isNigeria(data.profile?.country)) {
+			return Math.round(val);
+		}
+		return Math.round(val * NGN_PER_USD);
+	}
 
 	const typeVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
 		deposit: 'default', withdrawal: 'destructive',
@@ -44,8 +54,9 @@
 
 	async function handleDeposit() {
 		depositError = '';
-		const amount = parseInt(depositAmount);
-		if (!amount || amount < 100) { depositError = 'Minimum deposit is ₦100'; return; }
+		const amount = getDepositAmountNgn();
+		const minNgn = isNigeria(data.profile?.country) ? 100 : NGN_PER_USD;
+		if (!amount || amount < minNgn) { depositError = `Minimum deposit is ${formatCurrency(minNgn)}`; return; }
 
 		if (!flutterwaveLoaded) { depositError = 'Payment gateway loading, please wait...'; return; }
 
@@ -64,8 +75,10 @@
 			((window as any).FlutterwaveCheckout)({
 				public_key: PUBLIC_FLUTTERWAVE_PUBLIC_KEY,
 				tx_ref: initData.tx_ref,
+				// Both come from the server, which derives the currency from the
+				// user's profile — the client never chooses what it is billed in.
 				amount: initData.amount,
-				currency: 'NGN',
+				currency: initData.currency,
 				customer: { email: customerEmail },
 				callback: async (response: any) => {
 					if (response.status === 'successful' || response.status === 'completed') {
@@ -79,8 +92,8 @@
 							if (verifyRes.ok && verifyData.success) {
 								toast.success('Deposit successful', {
 									description: verifyData.bonusAmount > 0
-										? `₦${verifyData.amount.toLocaleString()} deposited + ₦${verifyData.bonusAmount.toLocaleString()} bonus!`
-										: `₦${verifyData.amount.toLocaleString()} deposited`
+										? `${formatCurrency(verifyData.amount)} deposited + ${formatCurrency(verifyData.bonusAmount)} bonus!`
+										: `${formatCurrency(verifyData.amount)} deposited`
 								});
 								depositAmount = '';
 								showDepositForm = false;
@@ -107,7 +120,7 @@
 </script>
 
 <svelte:head>
-	<title>Wallet — Soyomu Live</title>
+	<title>Wallet — Tikweb</title>
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
@@ -152,14 +165,23 @@
 			<Card>
 				<div class="p-6 space-y-4">
 					<h3 class="font-semibold">Deposit Funds</h3>
-					<p class="text-sm text-muted-foreground">Enter the amount you want to deposit (NGN)</p>
+					<p class="text-sm text-muted-foreground">
+						Enter the amount you want to deposit ({isNigeria(data.profile?.country) ? 'NGN' : 'USD'})
+					</p>
 					<input
 						type="number"
 						bind:value={depositAmount}
 						class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-lg font-bold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-						placeholder="₦10,000"
-						min="100"
+						placeholder={isNigeria(data.profile?.country) ? '10000' : '10'}
+						min={isNigeria(data.profile?.country) ? '100' : '1'}
+						step="any"
 					/>
+					{#if !isNigeria(data.profile?.country) && depositAmount && !isNaN(parseFloat(depositAmount))}
+						<p class="text-xs text-muted-foreground">
+							You'll be charged {formatIn(getDepositAmountNgn(), 'USD')} — credited to your
+							wallet as {formatIn(getDepositAmountNgn(), 'NGN')}.
+						</p>
+					{/if}
 					{#if depositError}
 						<p class="text-sm text-destructive">{depositError}</p>
 					{/if}
@@ -168,12 +190,12 @@
 							{#if processing}
 								<svg class="h-4 w-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
 							{/if}
-							{processing ? 'Processing...' : `Deposit ${depositAmount ? formatCurrency(parseInt(depositAmount)) : ''}`}
+							{processing ? 'Processing...' : `Deposit ${depositAmount && !isNaN(parseFloat(depositAmount)) ? formatCurrency(getDepositAmountNgn()) : ''}`}
 						</Button>
 						<Button variant="ghost" onclick={() => { showDepositForm = false; depositError = ''; }}>Cancel</Button>
 					</div>
 					<p class="text-xs text-muted-foreground">
-						First deposit of ₦10,000 or more gets 10% bonus credit!
+						First deposit of {formatCurrency(BONUS_FIRST_DEPOSIT_MINIMUM)} or more gets {BONUS_FIRST_DEPOSIT_PERCENT}% bonus credit!
 					</p>
 				</div>
 			</Card>

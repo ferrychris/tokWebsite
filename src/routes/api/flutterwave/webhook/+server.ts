@@ -41,12 +41,10 @@ export async function POST({ request, locals }) {
 		return json({ error: 'Transaction reference mismatch' }, { status: 400 });
 	}
 
-	const amount = verifyData.data.amount;
-
 	// Query the transaction in Supabase
 	const { data: existingTx, error: selectError } = await locals.supabase
 		.from('transactions')
-		.select('status, user_id')
+		.select('status, user_id, amount, charge_amount, charge_currency')
 		.eq('reference', tx_ref)
 		.maybeSingle();
 
@@ -61,6 +59,22 @@ export async function POST({ request, locals }) {
 	// Idempotency: if already processed, return 200 OK
 	if (existingTx.status !== 'pending') {
 		return json({ success: true, message: 'Transaction already processed' });
+	}
+
+	// Wallets are denominated in NGN; the gateway reports the charged currency.
+	// Credit the recorded NGN amount, not the gateway's figure.
+	const amount = existingTx.amount;
+
+	const paidCurrency = verifyData.data.currency;
+	const paidAmount = Number(verifyData.data.amount);
+	const expectedCurrency = existingTx.charge_currency || 'NGN';
+	const expectedAmount = Number(existingTx.charge_amount ?? existingTx.amount);
+
+	if (paidCurrency !== expectedCurrency) {
+		return json({ error: `Currency mismatch: ${paidCurrency} vs ${expectedCurrency}` }, { status: 400 });
+	}
+	if (paidAmount + 0.01 < expectedAmount) {
+		return json({ error: `Underpaid: ${paidAmount} ${paidCurrency} < ${expectedAmount}` }, { status: 400 });
 	}
 
 	// Calculate first-deposit bonus if applicable

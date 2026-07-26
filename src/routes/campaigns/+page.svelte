@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Button from '$lib/components/ui/button.svelte';
 	import Card from '$lib/components/ui/card.svelte';
 	import Badge from '$lib/components/ui/badge.svelte';
+	import { formatCurrency as formatCurrencyBase } from '$lib/utils/currency';
 	let { data } = $props();
 	let campaigns = $derived(data.campaigns || []);
 
@@ -10,11 +12,45 @@
 		active: 'success', completed: 'secondary', cancelled: 'destructive'
 	};
 
-	const formatCurrency = (n: number) => `₦${n.toLocaleString()}`;
+	const formatCurrency = (n: number) => formatCurrencyBase(n, data.profile?.country);
+
+	let now = $state(Date.now());
+	onMount(() => {
+		const interval = setInterval(() => { now = Date.now(); }, 1000);
+		return () => clearInterval(interval);
+	});
+
+	function formatRelative(dateStr: string): string {
+		const diff = Math.max(0, now - new Date(dateStr).getTime());
+		const s = Math.floor(diff / 1000);
+		if (s < 60) return 'just now';
+		const m = Math.floor(s / 60);
+		if (m < 60) return `${m}m ago`;
+		const h = Math.floor(m / 60);
+		if (h < 24) return `${h}h ago`;
+		const d = Math.floor(h / 24);
+		return `${d}d ago`;
+	}
+
+	function expiryInfo(campaign: { status: string; created_at: string; scheduled_at: string | null; duration: number }): { label: string; expired: boolean } | null {
+		if (campaign.status === 'completed' || campaign.status === 'cancelled') return null;
+		const start = new Date(campaign.scheduled_at || campaign.created_at).getTime();
+		const expiresAt = start + campaign.duration * 60_000;
+		const remaining = expiresAt - now;
+
+		if (remaining <= 0) return { label: 'Expired', expired: true };
+
+		const totalSeconds = Math.floor(remaining / 1000);
+		const h = Math.floor(totalSeconds / 3600);
+		const m = Math.floor((totalSeconds % 3600) / 60);
+		const s = totalSeconds % 60;
+		const label = h > 0 ? `${h}h ${m}m left` : m > 0 ? `${m}m ${s}s left` : `${s}s left`;
+		return { label, expired: false };
+	}
 </script>
 
 <svelte:head>
-	<title>Campaigns — Soyomu Live</title>
+	<title>Campaigns — Tikweb</title>
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
@@ -50,6 +86,7 @@
 	{:else}
 		<div class="grid gap-4">
 			{#each campaigns as campaign}
+				{@const expiry = expiryInfo(campaign)}
 				<a href="/campaigns/{campaign.id}">
 					<Card class="hover:bg-muted/50 transition-colors cursor-pointer">
 						<div class="p-6">
@@ -69,6 +106,20 @@
 											</svg> {campaign.duration} min
 										</span>
 										<span>{formatCurrency(campaign.cost)}</span>
+									</div>
+									<div class="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+										<span class="flex items-center gap-1">
+											<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+												<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+											</svg> Created {formatRelative(campaign.created_at)}
+										</span>
+										{#if expiry}
+											<span class="flex items-center gap-1 {expiry.expired ? 'text-destructive' : 'text-emerald-500'}">
+												<svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+													<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 3.75a1.5 1.5 0 013 0V6h-3V3.75zM12 9.75v4.5l3 1.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+												</svg> {expiry.label}
+											</span>
+										{/if}
 									</div>
 								</div>
 								<Badge variant={statusVariant[campaign.status]}>{campaign.status}</Badge>
