@@ -136,11 +136,7 @@
 							Get Started
 						</Button>
 					</a>
-					<a href="#how-it-works">
-						<Button variant="outline" class="border-[#2A2A2E] bg-transparent hover:bg-white/5 text-white text-base font-semibold px-8 py-3.5 h-auto rounded-xl transition-all hover:scale-105 active:scale-95">
-							View Demo
-						</Button>
-					</a>
+
 				</div>
 
 				<div class="flex items-center gap-3 pt-4">
